@@ -12,11 +12,14 @@ void UMaterialScalarParameterWidget::NativeConstruct()
 	ValueSlider->OnValueChanged.AddDynamic(this, &UMaterialScalarParameterWidget::UpdateParameter);
 }
 
-void UMaterialScalarParameterWidget::SetupWidget(FMaterialParameterInfo Parameter, UMaterialInstanceDynamic * Material)
+void UMaterialScalarParameterWidget::SetupWidget(FName WidgetName, FMaterialParameterInfo Parameter, UMaterialInstanceDynamic * Material)
 {
-	NameTextBlock->SetText(FText::FromName(Parameter.Name));
+	NameTextBlock->SetText(FText::FromName(WidgetName));
 	MaterialInstance = Material;
 	MaterialParamaterInfo = Parameter;
+	float Value;
+	Material->GetScalarParameterValue(Parameter, Value);
+	ValueSlider->SetValue(Value);
 }
 
 void UMaterialScalarParameterWidget::UpdateParameter(float Value)

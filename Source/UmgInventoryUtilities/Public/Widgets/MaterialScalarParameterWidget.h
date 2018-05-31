@@ -21,7 +21,7 @@ public:
 
 	UPROPERTY(VisibleAnywhere, BlueprintReadWrite, meta = (BindWidget))
 		class UTextBlock* NameTextBlock;
-
+		
 	UPROPERTY(VisibleAnywhere, BlueprintReadWrite, meta = (BindWidget))
 		class USlider* ValueSlider;
 
@@ -34,7 +34,7 @@ public:
 	void NativeConstruct() override;
 
 	UFUNCTION(BlueprintCallable)
-		void SetupWidget(FMaterialParameterInfo Parameter, class UMaterialInstanceDynamic* Material);
+		void SetupWidget(FName WidgetName, FMaterialParameterInfo Parameter, class UMaterialInstanceDynamic* Material);
 
 	UFUNCTION(BlueprintCallable)
 		void UpdateParameter(float Value);

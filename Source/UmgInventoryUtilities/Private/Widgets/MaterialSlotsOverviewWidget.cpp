@@ -23,7 +23,7 @@ void UMaterialSlotsOverviewWidget::SetupWidget(UMeshComponent* MeshComponent)
 			auto Widget = WidgetTree->ConstructWidget<UEditableMaterialSlotWidget>(EditableMaterialSlotWidgetClass, Name);
 			if (Widget != nullptr)
 			{
-				Widget->SetupWidget(Name, Mesh);
+				Widget->SetupWidget(this, Name, Mesh);
 				EditableMaterialSlotsPanelWidget->AddChild(Widget);
 			}
 		}
@@ -36,5 +36,14 @@ void UMaterialSlotsOverviewWidget::SetupWidget(UMeshComponent* MeshComponent)
 
 void UMaterialSlotsOverviewWidget::OnConfirmButton()
 {
+	if (OnItemMaterialInformationConfirmedDelegate.IsBound())
+	{
+		OnItemMaterialInformationConfirmedDelegate.Broadcast(ItemMaterialInformation);
+	}
 	RemoveFromParent();
+}
+
+void UMaterialSlotsOverviewWidget::OnChildMaterialSelectionMenuWidgetConfirmed(FMaterialSettings MaterialSettings)
+{
+	ItemMaterialInformation.SlotToMaterialParameterInfoValueCollection.Add(MaterialSettings.SlotName, MaterialSettings);
 }

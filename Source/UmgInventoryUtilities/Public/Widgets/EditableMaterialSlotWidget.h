@@ -20,11 +20,14 @@ public:
 		class UMeshComponent* Mesh;
 
 	UPROPERTY(VisibleAnywhere, BlueprintReadOnly)
+		class UMaterialSlotsOverviewWidget* MaterialSlotsOverviewWidget;
+
+	UPROPERTY(VisibleAnywhere, BlueprintReadOnly)
 		FName SlotName;
 
 	UPROPERTY(EditAnywhere, BlueprintReadWrite)
 		TSubclassOf<class UMaterialSelectionMenuWidget> MaterialSelectionMenuWidgetClass;
-
+	
 	UPROPERTY(VisibleAnywhere, BlueprintReadOnly, meta = (BindWidget))
 		class UTextBlock* NameTextBlock;
 
@@ -34,7 +37,7 @@ public:
 	void NativeConstruct() override;
 
 	UFUNCTION(BlueprintCallable)
-		void SetupWidget(FName Name, class UMeshComponent* MeshComponent);
+		void SetupWidget(UMaterialSlotsOverviewWidget* Parent, FName Name, class UMeshComponent* MeshComponent);
 
 	UFUNCTION(BlueprintCallable)
 		void OnEdit();

@@ -11,11 +11,12 @@ void UMaterialVectorParameterWidget::NativeConstruct()
 {
 }
 
-void UMaterialVectorParameterWidget::SetupWidget(FMaterialParameterInfo Parameter, UMaterialInstanceDynamic * Material)
+void UMaterialVectorParameterWidget::SetupWidget(FName WidgetName, FMaterialParameterInfo Parameter, UMaterialInstanceDynamic * Material)
 {
-	NameTextBlock->SetText(FText::FromName(Parameter.Name));
+	NameTextBlock->SetText(FText::FromName(WidgetName));
 	MaterialInstance = Material;
 	MaterialParamaterInfo = Parameter;
+	UpdateColorWidget();
 }
 
 void UMaterialVectorParameterWidget::UpdateParameter(FLinearColor Value)

@@ -31,12 +31,15 @@ public:
 	void NativeConstruct() override;
 
 	UFUNCTION(BlueprintCallable)
-		void SetupWidget(FMaterialParameterInfo Parameter, class UMaterialInstanceDynamic* Material);
+		void SetupWidget(FName WidgetName, FMaterialParameterInfo Parameter, class UMaterialInstanceDynamic* Material);
 
 	UFUNCTION(BlueprintCallable)
 		void UpdateParameter(FLinearColor Value);
 
 	UFUNCTION(BlueprintCallable)
 		FMaterialVectorParameterInfoValue GetMaterialVectorParameterInfoValue();
+
+	UFUNCTION(BlueprintImplementableEvent)
+		void UpdateColorWidget();
 
 };

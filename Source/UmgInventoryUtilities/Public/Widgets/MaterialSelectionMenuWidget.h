@@ -4,6 +4,7 @@
 
 #include "CoreMinimal.h"
 #include "Blueprint/UserWidget.h"
+#include "MaterialEditorWidget.h"
 #include "MaterialSelectionMenuWidget.generated.h"
 
 UCLASS()
@@ -31,6 +32,29 @@ public:
 		class UTexture2D* PreviewTexture;
 };
 
+USTRUCT(BlueprintType)
+struct FMaterialSettings
+{
+	GENERATED_BODY()
+
+public:
+
+	UPROPERTY(VisibleAnywhere, BlueprintReadOnly)
+		class UMeshComponent* Mesh;
+
+	UPROPERTY(VisibleAnywhere, BlueprintReadOnly)
+		FName SlotName;
+
+	UPROPERTY(VisibleAnywhere, BlueprintReadWrite)
+		UMaterialInterface* Material;
+
+	UPROPERTY(VisibleAnywhere, BlueprintReadWrite)
+		FMaterialParameterInfoValueCollection MaterialParamaterInfoValueCollection;
+
+};
+
+DECLARE_DYNAMIC_MULTICAST_DELEGATE_OneParam(FOnMaterialConfirmed, FMaterialSettings, MaterialSettings);
+
 /**
  *
  */
@@ -51,7 +75,16 @@ public:
 		TArray<FMaterialAndIcon> MaterialAndIcons;
 
 	UPROPERTY(VisibleAnywhere, BlueprintReadOnly)
+		class UMaterialSlotsOverviewWidget* MaterialSlotsOverviewWidget;
+
+	UPROPERTY(VisibleAnywhere, BlueprintReadOnly)
+		FMaterialSettings MaterialSettings;
+
+	UPROPERTY(VisibleAnywhere, BlueprintReadOnly)
 		FName SlotName;
+
+	UPROPERTY(VisibleAnywhere, BlueprintReadOnly)
+		class UMaterialInterface* SelectedMaterialInterface;
 
 	UPROPERTY(VisibleAnywhere, BlueprintReadOnly)
 		class UMeshComponent* Mesh;
@@ -65,6 +98,9 @@ public:
 	UPROPERTY(VisibleAnywhere, BlueprintReadOnly, meta = (BindWidget))
 		class UButton* ConfirmButton;
 
+	UPROPERTY(VisibleAnywhere, BlueprintReadOnly)
+		FOnMaterialConfirmed OnMaterialConfirmedDelegate;
+
 	void NativeConstruct() override;
 
 	UFUNCTION(BlueprintCallable)
@@ -72,6 +108,9 @@ public:
 
 	UFUNCTION(BlueprintCallable)
 		void OnMaterialSelected(const UObject* SelectedObject);
+
+	UFUNCTION(BlueprintCallable)
+		void OnChildMaterialEditorConfirmed(FMaterialParameterInfoValueCollection MaterialParameterInfoValueCollection);
 
 	UFUNCTION(BlueprintCallable)
 		void OnConfirm();

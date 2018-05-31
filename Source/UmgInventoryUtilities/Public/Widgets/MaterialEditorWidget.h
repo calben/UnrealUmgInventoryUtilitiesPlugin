@@ -65,7 +65,7 @@ public:
 		TArray<FMaterialVectorParameterInfoValue> MaterialVectorParameterInfoValues;
 };
 
-DECLARE_DYNAMIC_MULTICAST_DELEGATE_OneParam(FOnMaterialConfirmed, FMaterialParameterInfoValueCollection, MaterialParameterInfoValueCollection);
+DECLARE_DYNAMIC_MULTICAST_DELEGATE_OneParam(FOnMaterialParametersConfirmed, FMaterialParameterInfoValueCollection, MaterialParameterInfoValueCollection);
 
 /**
  *
@@ -104,13 +104,16 @@ public:
 	UPROPERTY(EditAnywhere, BlueprintReadWrite)
 		bool bCloseOnConfirm = true;
 
+	UPROPERTY(VisibleAnywhere, BlueprintReadOnly)
+		class UMaterialInstanceDynamic* MaterialInstance;
+
 	UPROPERTY(BlueprintAssignable)
-		FOnMaterialConfirmed OnMaterialConfirmed;
+		FOnMaterialParametersConfirmed OnMaterialParametersConfirmedDelegate;
 
 	void NativeConstruct() override;
 
 	UFUNCTION(BlueprintCallable)
-		void SetupPanel(class UMaterialInstanceDynamic* Material);
+		void SetupPanel(FText WidgetName, class UMaterialSelectionMenuWidget* Parent, class UMaterialInstanceDynamic* Material);
 
 	UFUNCTION(BlueprintCallable)
 		void OnConfirmButton();

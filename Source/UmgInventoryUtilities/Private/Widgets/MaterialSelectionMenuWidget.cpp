@@ -53,6 +53,7 @@ void UMaterialSelectionMenuWidget::OnMaterialSelected(const UObject* SelectedObj
 	{
 		if (MaterialSelectionData->Data != nullptr)
 		{
+			SelectedMaterialInterface = MaterialSelectionData->Data;
 			auto MaterialInstanceDynamic = UMaterialInstanceDynamic::Create(MaterialSelectionData->Data, Mesh);
 			if (MaterialInstanceDynamic != nullptr)
 			{
@@ -62,7 +63,8 @@ void UMaterialSelectionMenuWidget::OnMaterialSelected(const UObject* SelectedObj
 					auto Widget = CreateWidget<UMaterialEditorWidget>(UGameplayStatics::GetPlayerController(GetWorld(), 0), MaterialEditorWidgetClass);
 					if (Widget != nullptr)
 					{
-						Widget->SetupPanel(MaterialInstanceDynamic);
+						Widget->SetupPanel(FText::FromString(SelectedMaterialInterface->GetName()), this, MaterialInstanceDynamic);
+						Widget->OnMaterialParametersConfirmedDelegate.AddDynamic(this, &UMaterialSelectionMenuWidget::OnChildMaterialEditorConfirmed);
 						Widget->AddToViewport();
 					}
 				}
@@ -71,7 +73,19 @@ void UMaterialSelectionMenuWidget::OnMaterialSelected(const UObject* SelectedObj
 	}
 }
 
+void UMaterialSelectionMenuWidget::OnChildMaterialEditorConfirmed(FMaterialParameterInfoValueCollection MaterialParameterInfoValueCollection)
+{
+	MaterialSettings.Mesh = Mesh;
+	MaterialSettings.SlotName = SlotName;
+	MaterialSettings.Material = SelectedMaterialInterface;
+	MaterialSettings.MaterialParamaterInfoValueCollection = MaterialParameterInfoValueCollection;
+}
+
 void UMaterialSelectionMenuWidget::OnConfirm()
 {
+	if (OnMaterialConfirmedDelegate.IsBound())
+	{
+		OnMaterialConfirmedDelegate.Broadcast(MaterialSettings);
+	}
 	RemoveFromParent();
 }

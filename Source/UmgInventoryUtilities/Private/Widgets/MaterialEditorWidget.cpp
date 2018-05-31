@@ -16,18 +16,24 @@ void UMaterialEditorWidget::NativeConstruct()
 	ConfirmButton->OnReleased.AddDynamic(this, &UMaterialEditorWidget::OnConfirmButton);
 }
 
-void UMaterialEditorWidget::SetupPanel(UMaterialInstanceDynamic* Material)
+void UMaterialEditorWidget::SetupPanel(FText WidgetName, class UMaterialSelectionMenuWidget* Parent, UMaterialInstanceDynamic* Material)
 {
-	TitleTextBlock->SetText(FText::FromString(Material->GetName()));
+	MaterialInstance = Material;
+	TitleTextBlock->SetText(WidgetName);
 
 	TArray<FMaterialParameterInfo> VectorParameters;
 	TArray<FGuid> VectorParameterGuids;
 	Material->GetAllVectorParameterInfo(VectorParameters, VectorParameterGuids);
-	for (int32 ParameterIdx = 0; ParameterIdx < VectorParameters.Num(); ParameterIdx++)
+
+	TArray<FMaterialParameterInfo> ScalarParameters;
+	TArray<FGuid> ScalarParameterGuids;
+	Material->GetAllScalarParameterInfo(ScalarParameters, ScalarParameterGuids);
+
+	for (auto ExposedParameter : ExposedParameters)
 	{
-		FName ParameterName = VectorParameters[ParameterIdx].Name;
-		for (auto ExposedParameter : ExposedParameters)
+		for (int32 ParameterIdx = 0; ParameterIdx < VectorParameters.Num(); ParameterIdx++)
 		{
+			FName ParameterName = VectorParameters[ParameterIdx].Name;
 			if (ParameterName.IsEqual(ExposedParameter.Name))
 			{
 				if (MaterialVectorParameterWidgetClass != nullptr)
@@ -36,22 +42,15 @@ void UMaterialEditorWidget::SetupPanel(UMaterialInstanceDynamic* Material)
 					if (Widget != nullptr)
 					{
 						ExposedMaterialWidgetsPanel->AddChild(Widget);
-						Widget->SetupWidget(VectorParameters[ParameterIdx], Material);
+						Widget->SetupWidget(ExposedParameter.FriendlyName, VectorParameters[ParameterIdx], Material);
 						MaterialVectorParameterWidgets.Add(Widget);
 					}
 				}
 			}
 		}
-	}
-
-	TArray<FMaterialParameterInfo> ScalarParameters;
-	TArray<FGuid> ScalarParameterGuids;
-	Material->GetAllScalarParameterInfo(ScalarParameters, ScalarParameterGuids);
-	for (int32 ParameterIdx = 0; ParameterIdx < ScalarParameters.Num(); ParameterIdx++)
-	{
-		FName ParameterName = ScalarParameters[ParameterIdx].Name;
-		for (auto ExposedParameter : ExposedParameters)
+		for (int32 ParameterIdx = 0; ParameterIdx < ScalarParameters.Num(); ParameterIdx++)
 		{
+			FName ParameterName = ScalarParameters[ParameterIdx].Name;
 			if (ParameterName.IsEqual(ExposedParameter.Name))
 			{
 				if (MaterialScalarParameterWidgetClass != nullptr)
@@ -60,7 +59,7 @@ void UMaterialEditorWidget::SetupPanel(UMaterialInstanceDynamic* Material)
 					if (Widget != nullptr)
 					{
 						ExposedMaterialWidgetsPanel->AddChild(Widget);
-						Widget->SetupWidget(ScalarParameters[ParameterIdx], Material);
+						Widget->SetupWidget(ExposedParameter.FriendlyName, ScalarParameters[ParameterIdx], Material);
 						MaterialScalarParameterWidgets.Add(Widget);
 					}
 				}
@@ -71,7 +70,7 @@ void UMaterialEditorWidget::SetupPanel(UMaterialInstanceDynamic* Material)
 
 void UMaterialEditorWidget::OnConfirmButton()
 {
-	if (OnMaterialConfirmed.IsBound())
+	if (OnMaterialParametersConfirmedDelegate.IsBound())
 	{
 		FMaterialParameterInfoValueCollection MaterialParameterInfoValueCollection;
 		for (auto MaterialScalarParameterWidget : MaterialScalarParameterWidgets)
@@ -82,7 +81,7 @@ void UMaterialEditorWidget::OnConfirmButton()
 		{
 			MaterialParameterInfoValueCollection.MaterialVectorParameterInfoValues.Add(MaterialVectorParameterWidget->GetMaterialVectorParameterInfoValue());
 		}
-		OnMaterialConfirmed.Broadcast(MaterialParameterInfoValueCollection);
+		OnMaterialParametersConfirmedDelegate.Broadcast(MaterialParameterInfoValueCollection);
 	}
 	if (bCloseOnConfirm)
 		RemoveFromParent();
