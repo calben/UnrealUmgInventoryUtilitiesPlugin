@@ -28,7 +28,8 @@ public class UmgInventoryUtilities : ModuleRules
             new string[]
             {
                 "Core",
-                "UmgObjectSelector"
+                "UmgObjectSelector",
+                "BastioniLABCharacters"
 				// ... add other public dependencies that you statically link with here ...
 			}
             );

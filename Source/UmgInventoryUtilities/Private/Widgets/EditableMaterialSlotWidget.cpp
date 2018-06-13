@@ -15,12 +15,13 @@ void UEditableMaterialSlotWidget::NativeConstruct()
 	EditButton->OnReleased.AddDynamic(this, &UEditableMaterialSlotWidget::OnEdit);
 }
 
-void UEditableMaterialSlotWidget::SetupWidget(UMaterialSlotsOverviewWidget* Parent, FName Name, UMeshComponent* MeshComponent)
+void UEditableMaterialSlotWidget::SetupWidget(UMaterialSlotsOverviewWidget* Parent, FName Name, FEquippableItem Item)
 {
 	MaterialSlotsOverviewWidget = Parent;
-	Mesh = MeshComponent;
+	EquippableItem = Item;
 	SlotName = Name;
-	NameTextBlock->SetText(FText::FromName(Name));
+	FriendlySlotName = Name.ToString().Replace(TEXT("_"), TEXT(" "));
+	NameTextBlock->SetText(FText::FromString(FriendlySlotName));
 }
 
 void UEditableMaterialSlotWidget::OnEdit()
@@ -30,7 +31,7 @@ void UEditableMaterialSlotWidget::OnEdit()
 		auto Widget = CreateWidget<UMaterialSelectionMenuWidget>(UGameplayStatics::GetPlayerController(GetWorld(), 0), MaterialSelectionMenuWidgetClass);
 		if (Widget != nullptr)
 		{
-			Widget->SetupWidget(SlotName, Mesh);
+			Widget->SetupWidget(FriendlySlotName, SlotName, EquippableItem);
 			Widget->OnMaterialConfirmedDelegate.AddDynamic(MaterialSlotsOverviewWidget, &UMaterialSlotsOverviewWidget::OnChildMaterialSelectionMenuWidgetConfirmed);
 			Widget->AddToViewport();
 		}

@@ -5,6 +5,7 @@
 #include "CoreMinimal.h"
 #include "Blueprint/UserWidget.h"
 #include "MaterialEditorWidget.h"
+#include "BastioniLABCharacters/Public/ClothedBastioniLabCharacter.h"
 #include "MaterialSelectionMenuWidget.h"
 #include "MaterialSlotsOverviewWidget.generated.h"
 
@@ -39,7 +40,7 @@ public:
 		FItemMaterialInformation ItemMaterialInformation;
 
 	UPROPERTY(VisibleAnywhere, BlueprintReadOnly)
-		class UMeshComponent* Mesh;
+		FEquippableItem EquippableItem;
 
 	UPROPERTY(VisibleAnywhere, BlueprintReadOnly, meta = (BindWidget))
 		class UTextBlock* MenuTitleTextBlock;
@@ -56,7 +57,7 @@ public:
 	void NativeConstruct() override;
 
 	UFUNCTION(BlueprintCallable)
-		void SetupWidget(class UMeshComponent* MeshComponent);
+		void SetupWidget(FText WidgetName, FEquippableItem Item);
 
 	UFUNCTION(BlueprintCallable)
 		void OnConfirmButton();

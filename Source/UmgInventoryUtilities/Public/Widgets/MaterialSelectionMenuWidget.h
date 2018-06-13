@@ -4,6 +4,7 @@
 
 #include "CoreMinimal.h"
 #include "Blueprint/UserWidget.h"
+#include "BastioniLABCharacters/Public/ClothedBastioniLabCharacter.h"
 #include "MaterialEditorWidget.h"
 #include "MaterialSelectionMenuWidget.generated.h"
 
@@ -87,7 +88,7 @@ public:
 		class UMaterialInterface* SelectedMaterialInterface;
 
 	UPROPERTY(VisibleAnywhere, BlueprintReadOnly)
-		class UMeshComponent* Mesh;
+		FEquippableItem EquippableItem;
 
 	UPROPERTY(VisibleAnywhere, BlueprintReadOnly, meta = (BindWidget))
 		class UTextBlock* MenuTitleTextBlock;
@@ -104,7 +105,7 @@ public:
 	void NativeConstruct() override;
 
 	UFUNCTION(BlueprintCallable)
-		void SetupWidget(FName MaterialSlotName, UMeshComponent* MeshComponent);
+		void SetupWidget(FString FriendlySlotName, FName MaterialSlotName, FEquippableItem Item);
 
 	UFUNCTION(BlueprintCallable)
 		void OnMaterialSelected(const UObject* SelectedObject);

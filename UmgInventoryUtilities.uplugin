@@ -19,5 +19,15 @@
 			"Type": "Runtime",
 			"LoadingPhase": "Default"
 		}
+	],
+	"Plugins": [
+		{
+		  "Name": "UmgObjectSelector",
+		  "Enabled": true
+		},
+		{
+		  "Name": "BastioniLABCharacters",
+		  "Enabled": true
+		}
 	]
 }

@@ -10,6 +10,7 @@
 #include "WidgetTree.h"
 #include "UmgInventoryUtilities.h"
 #include "MaterialSelectorWidget.h"
+#include "Runtime/Engine/Classes/Components/SkeletalMeshComponent.h"
 #include "Runtime/Engine/Classes/Components/MeshComponent.h"
 #include "Runtime/Engine/Classes/Materials/Material.h"
 #include "Runtime/Engine/Classes/Materials/MaterialInstanceDynamic.h"
@@ -21,26 +22,53 @@ void UMaterialSelectionMenuWidget::NativeConstruct()
 	ConfirmButton->OnReleased.AddDynamic(this, &UMaterialSelectionMenuWidget::OnConfirm);
 }
 
-void UMaterialSelectionMenuWidget::SetupWidget(FName MaterialSlotName, UMeshComponent* MeshComponent)
+void UMaterialSelectionMenuWidget::SetupWidget(FString FriendlySlotName, FName MaterialSlotName, FEquippableItem Item)
 {
 	SlotName = MaterialSlotName;
-	MenuTitleTextBlock->SetText(FText::FromName(MaterialSlotName));
-	Mesh = MeshComponent;
+	MenuTitleTextBlock->SetText(FText::FromString(FriendlySlotName));
+	EquippableItem = Item;
 	if (SelectableObjectIconAndTextWidgetClass != nullptr)
 	{
-		for (auto MaterialAndIcon : MaterialAndIcons)
+		if (EquippableItem.ItemMesh->GetName().Contains("hair"))
 		{
-			auto Widget = WidgetTree->ConstructWidget<USelectableObjectIconAndTextWidget>(SelectableObjectIconAndTextWidgetClass);
-			if (Widget != nullptr)
+			auto Path = FString::Printf(TEXT("MaterialInstanceConstant'/Game/Clothing/Materials/%s.%s'"), *Item.ItemMesh->GetName(), *Item.ItemMesh->GetName());
+			UE_LOG(LogTemp, Warning, TEXT("Searching %s for material."), *Path);
+			auto Material = Cast<UMaterialInterface>(StaticLoadObject(UMaterialInterface::StaticClass(), NULL, *(Path)));
+			if (Material != nullptr)
 			{
-				FSelectableObjectIconAndTextData Data;
-				auto MaterialSelectionData = NewObject<UMaterialSelectionData>();
-				MaterialSelectionData->Data = MaterialAndIcon.Material;
-				Data.ContainedObject = MaterialSelectionData;
-				Data.IconText = FText::FromString(MaterialAndIcon.Material->GetName());
-				Data.IconTexture = MaterialAndIcon.PreviewTexture;
-				Widget->SetupSelectableObjectData(Data);
-				MaterialSelectorWidget->AddSelectableObjectToWidget(Widget);
+				auto Widget = WidgetTree->ConstructWidget<USelectableObjectIconAndTextWidget>(SelectableObjectIconAndTextWidgetClass);
+				if (Widget != nullptr)
+				{
+					FSelectableObjectIconAndTextData Data;
+					auto MaterialSelectionData = NewObject<UMaterialSelectionData>();
+					MaterialSelectionData->Data = Material;
+					Data.ContainedObject = MaterialSelectionData;
+					Data.IconText = FText::FromString(Material->GetName());
+					Widget->SetupSelectableObjectData(Data);
+					MaterialSelectorWidget->AddSelectableObjectToWidget(Widget);
+				}
+			}
+			else
+			{
+				UE_LOG(LogTemp, Warning, TEXT("Failed to find material."));
+			}
+		}
+		else
+		{
+			for (auto MaterialAndIcon : MaterialAndIcons)
+			{
+				auto Widget = WidgetTree->ConstructWidget<USelectableObjectIconAndTextWidget>(SelectableObjectIconAndTextWidgetClass);
+				if (Widget != nullptr)
+				{
+					FSelectableObjectIconAndTextData Data;
+					auto MaterialSelectionData = NewObject<UMaterialSelectionData>();
+					MaterialSelectionData->Data = MaterialAndIcon.Material;
+					Data.ContainedObject = MaterialSelectionData;
+					Data.IconText = FText::FromString(MaterialAndIcon.Material->GetName());
+					Data.IconTexture = MaterialAndIcon.PreviewTexture;
+					Widget->SetupSelectableObjectData(Data);
+					MaterialSelectorWidget->AddSelectableObjectToWidget(Widget);
+				}
 			}
 		}
 	}
@@ -54,10 +82,10 @@ void UMaterialSelectionMenuWidget::OnMaterialSelected(const UObject* SelectedObj
 		if (MaterialSelectionData->Data != nullptr)
 		{
 			SelectedMaterialInterface = MaterialSelectionData->Data;
-			auto MaterialInstanceDynamic = UMaterialInstanceDynamic::Create(MaterialSelectionData->Data, Mesh);
+			auto MaterialInstanceDynamic = UMaterialInstanceDynamic::Create(MaterialSelectionData->Data, (UMeshComponent*)EquippableItem.ItemMeshComponent);
 			if (MaterialInstanceDynamic != nullptr)
 			{
-				Mesh->SetMaterialByName(SlotName, MaterialInstanceDynamic);
+				EquippableItem.ItemMeshComponent->SetMaterialByName(SlotName, MaterialInstanceDynamic);
 				if (MaterialEditorWidgetClass != nullptr)
 				{
 					auto Widget = CreateWidget<UMaterialEditorWidget>(UGameplayStatics::GetPlayerController(GetWorld(), 0), MaterialEditorWidgetClass);
@@ -75,7 +103,7 @@ void UMaterialSelectionMenuWidget::OnMaterialSelected(const UObject* SelectedObj
 
 void UMaterialSelectionMenuWidget::OnChildMaterialEditorConfirmed(FMaterialParameterInfoValueCollection MaterialParameterInfoValueCollection)
 {
-	MaterialSettings.Mesh = Mesh;
+	MaterialSettings.Mesh = Cast<UMeshComponent>(EquippableItem.ItemMesh);
 	MaterialSettings.SlotName = SlotName;
 	MaterialSettings.Material = SelectedMaterialInterface;
 	MaterialSettings.MaterialParamaterInfoValueCollection = MaterialParameterInfoValueCollection;

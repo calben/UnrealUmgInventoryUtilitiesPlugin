@@ -4,6 +4,7 @@
 
 #include "CoreMinimal.h"
 #include "Blueprint/UserWidget.h"
+#include "BastioniLABCharacters/Public/ClothedBastioniLabCharacter.h"
 #include "EditableMaterialSlotWidget.generated.h"
 
 /**
@@ -17,7 +18,7 @@ class UMGINVENTORYUTILITIES_API UEditableMaterialSlotWidget : public UUserWidget
 public:
 
 	UPROPERTY(VisibleAnywhere, BlueprintReadOnly)
-		class UMeshComponent* Mesh;
+		FEquippableItem EquippableItem;
 
 	UPROPERTY(VisibleAnywhere, BlueprintReadOnly)
 		class UMaterialSlotsOverviewWidget* MaterialSlotsOverviewWidget;
@@ -25,9 +26,11 @@ public:
 	UPROPERTY(VisibleAnywhere, BlueprintReadOnly)
 		FName SlotName;
 
+	FString FriendlySlotName;
+
 	UPROPERTY(EditAnywhere, BlueprintReadWrite)
 		TSubclassOf<class UMaterialSelectionMenuWidget> MaterialSelectionMenuWidgetClass;
-	
+
 	UPROPERTY(VisibleAnywhere, BlueprintReadOnly, meta = (BindWidget))
 		class UTextBlock* NameTextBlock;
 
@@ -37,7 +40,7 @@ public:
 	void NativeConstruct() override;
 
 	UFUNCTION(BlueprintCallable)
-		void SetupWidget(UMaterialSlotsOverviewWidget* Parent, FName Name, class UMeshComponent* MeshComponent);
+		void SetupWidget(UMaterialSlotsOverviewWidget* Parent, FName Name, FEquippableItem Item);
 
 	UFUNCTION(BlueprintCallable)
 		void OnEdit();

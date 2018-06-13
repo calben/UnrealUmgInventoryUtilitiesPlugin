@@ -13,17 +13,18 @@ void UMaterialSlotsOverviewWidget::NativeConstruct()
 	ConfirmButton->OnReleased.AddDynamic(this, &UMaterialSlotsOverviewWidget::OnConfirmButton);
 }
 
-void UMaterialSlotsOverviewWidget::SetupWidget(UMeshComponent* MeshComponent)
+void UMaterialSlotsOverviewWidget::SetupWidget(FText WidgetName, FEquippableItem Item)
 {
-	Mesh = MeshComponent;
-	for (auto Name : Mesh->GetMaterialSlotNames())
+	MenuTitleTextBlock->SetText(WidgetName);
+	EquippableItem = Item;
+	for (auto Name : EquippableItem.ItemMeshComponent->GetMaterialSlotNames())
 	{
 		if (EditableMaterialSlotWidgetClass != nullptr)
 		{
 			auto Widget = WidgetTree->ConstructWidget<UEditableMaterialSlotWidget>(EditableMaterialSlotWidgetClass, Name);
 			if (Widget != nullptr)
 			{
-				Widget->SetupWidget(this, Name, Mesh);
+				Widget->SetupWidget(this, Name, EquippableItem);
 				EditableMaterialSlotsPanelWidget->AddChild(Widget);
 			}
 		}
