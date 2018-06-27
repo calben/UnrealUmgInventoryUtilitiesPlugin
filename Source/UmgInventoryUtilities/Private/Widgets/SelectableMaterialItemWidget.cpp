@@ -19,7 +19,10 @@ void USelectableMaterialItemWidget::SetupSelectableMaterialItemWidget(FInventory
 	//DataWrapper->Data = EquippableItem;
 	//ContainedObject = DataWrapper;
 
-	ItemImage->SetBrushFromTexture(MaterialItem.PreviewImage);
+	if (MaterialItem.PreviewImage != nullptr)
+	{
+		ItemImage->SetBrushFromTexture(MaterialItem.PreviewImage);
+	}
 	MaterialNameTextBlock->SetText(FText::FromName(MaterialItem.Name));
 	MaterialTypeTextBlock->SetText(FText::FromName(MaterialItem.Type));
 	UE_LOG(LogUmgInventoryUtilties, Log, TEXT("Setup selectable material widget %s"), *MaterialItem.Name.ToString());

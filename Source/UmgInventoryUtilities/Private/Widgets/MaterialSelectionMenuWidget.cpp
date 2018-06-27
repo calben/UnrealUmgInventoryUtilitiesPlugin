@@ -43,8 +43,10 @@ void UMaterialSelectionMenuWidget::SetupWidget(FString FriendlySlotName, FName M
 					auto MaterialSelectionData = NewObject<UMaterialSelectionData>();
 					MaterialSelectionData->Data = Material;
 					Data.ContainedObject = MaterialSelectionData;
+					Data.IconTexture = nullptr;
 					Data.IconText = FText::FromString(Material->GetName());
 					Widget->SetupSelectableObjectData(Data);
+					UE_LOG(LogTemp, Warning, TEXT("Setup USelectableObjectIconAndTextWidget for %s."), *Data.IconText.ToString());
 					MaterialSelectorWidget->AddSelectableObjectToWidget(Widget);
 				}
 			}
